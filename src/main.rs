@@ -3,6 +3,8 @@ use std::{ops::Sub, f32::consts::PI, sync::Mutex};
 use lerp::Lerp;
 use nalgebra::{Vector2, SimdValue};
 use rand::{prelude::ThreadRng, Rng};
+use rand_pcg::Pcg32;
+use rand_seeder::Seeder;
 use rayon::iter::{IntoParallelIterator, ParallelIterator, IndexedParallelIterator, IntoParallelRefMutIterator, IntoParallelRefIterator};
 
 // Alright so here is the explanation of the algorithm, perlin noise is created by first creating a grid array, each cell in the grid
@@ -18,7 +20,7 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator, IndexedParallelIterato
 
 
 fn main() {
-    print_noise(&gen_noise(5, 32, 255, 0.1, 1.1, 11));
+    print_noise(&gen_noise("ExtremelyLongVeryRandomHash!!",360, 16, 255, 0.1, 1.1, 11));
 }
 
 #[derive(Debug,Default,Clone)]
@@ -64,9 +66,9 @@ fn gen_stamps(accuracy: u32,size: usize) -> Vec<Stamp>{
     }).collect()
 }
 
-fn gen_noise(accuracy: u32, stamp_size: usize, world_size: usize, lower_range: f32, upper_range: f32, smooth_range: usize) -> Vec<Vec<bool>>{
+fn gen_noise(seed: &str,accuracy: u32, stamp_size: usize, world_size: usize, lower_range: f32, upper_range: f32, smooth_range: usize) -> Vec<Vec<bool>>{
     let real_stamp_size = stamp_size * 2;
-    let mut rng = ThreadRng::default();
+    let mut rng : Pcg32 = Seeder::from(seed).make_rng();
     let stamps = gen_stamps(accuracy, real_stamp_size);
     //quite funky i know, but we need the world size to actually be a multiple of the real_stamp_size /shrug
     let real_world_size = (((world_size)as f32/stamp_size as f32).ceil() * stamp_size as f32 + real_stamp_size as f32) as usize;
