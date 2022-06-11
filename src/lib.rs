@@ -84,7 +84,7 @@ pub fn gen_noise(seed: &str,accuracy: u32, stamp_size: usize, world_size: usize,
         }
     }
 
-    let res: Vec<Vec<bool>> = (real_stamp_size..real_world_size).into_par_iter().map(|x|{
+    let mut res: Vec<Vec<bool>> = (real_stamp_size..real_world_size).into_par_iter().map(|x|{
         (real_stamp_size..real_world_size).into_iter().map(|y|{
             let xdiv = x/stamp_size;
             let ydiv = y/stamp_size;
@@ -103,11 +103,19 @@ pub fn gen_noise(seed: &str,accuracy: u32, stamp_size: usize, world_size: usize,
             result >= lower_range && result < upper_range
         }).collect()
     }).collect();
-
+    cut_noise_to_dimensions(&mut res, world_size);
     res
 }
 
-///Prints the noise with X representing true, and a space representing false
+fn cut_noise_to_dimensions(vec: &mut Vec<Vec<bool>>, size: usize){
+    vec.truncate(size);
+    vec.par_iter_mut().for_each(|nested_vec|{
+        nested_vec.truncate(size);
+    });
+}
+
+
+//Prints the noise with X representing true, and a space representing false
 pub fn print_noise(vec: &Vec<Vec<bool>>){
     for x in 0..vec.len(){
         for y in 0..vec[x].len(){
