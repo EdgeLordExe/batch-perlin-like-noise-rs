@@ -75,6 +75,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "dbpnoise"
+version = "0.1.0"
+dependencies = [
+ "lerp",
+ "nalgebra",
+ "rand",
+ "rand_pcg",
+ "rand_seeder",
+ "rayon",
+]
+
+[[package]]
 name = "either"
 version = "1.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -220,18 +232,6 @@ name = "paste"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c520e05135d6e763148b6426a837e239041653ba7becd2e538c076c738025fc"
-
-[[package]]
-name = "perlinnoisev2"
-version = "0.1.0"
-dependencies = [
- "lerp",
- "nalgebra",
- "rand",
- "rand_pcg",
- "rand_seeder",
- "rayon",
-]
 
 [[package]]
 name = "ppv-lite86"
