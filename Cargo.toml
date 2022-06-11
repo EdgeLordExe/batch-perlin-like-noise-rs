@@ -1,6 +1,6 @@
 [package]
 name = "dbpnoise"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 license = "MIT"
 description = "dbpnoise (discrete, batched, perlin-like noise) is a parallelized, seeded, discrete perlin-like noise algorithm designed for quickly generating simple 1-0 maps for 2d games."
@@ -10,7 +10,6 @@ description = "dbpnoise (discrete, batched, perlin-like noise) is a parallelized
 [dependencies]
 rayon = "1.5.2"
 rand = "0.8.5"
-nalgebra = "0.31.0"
 lerp = "0.4.0"
 rand_seeder = "0.2.3"
 rand_pcg = "0.3.1"

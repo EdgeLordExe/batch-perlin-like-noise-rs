@@ -1,11 +1,30 @@
 use std::{ops::Sub, f32::consts::PI, sync::Mutex};
 
 use lerp::Lerp;
-use nalgebra::{Vector2, SimdValue};
 use rand::{prelude::ThreadRng, Rng};
 use rand_pcg::Pcg32;
 use rand_seeder::Seeder;
 use rayon::iter::{IntoParallelIterator, ParallelIterator, IndexedParallelIterator, IntoParallelRefMutIterator, IntoParallelRefIterator};
+
+struct Vec2<T>{
+    x: T,
+    y: T,
+}
+
+impl<T> Vec2<T> where T : std::ops::Add<Output=T> + std::ops::Sub<Output=T> + std::ops::Mul<Output=T> + std::ops::Div<Output=T> + Copy {
+    fn new(x: T, y: T) -> Self{
+        Self{x, y}
+    }
+
+    fn scale(&self, s: T) -> Self{
+        Self{x: self.x * s, y: self.y * s}
+    }
+    
+    fn dot(&self, other: &Self) -> T{
+        self.x * other.x + self.y * other.y
+    }
+
+}
 
 #[derive(Debug,Default,Clone)]
 struct Stamp{
@@ -13,7 +32,7 @@ struct Stamp{
 }
 
 impl Stamp{
-    fn new(vector: &Vector2<f32>,size: usize) -> Self{
+    fn new(vector: &Vec2<f32>,size: usize) -> Self{
 
         let mut v : Vec<Vec<f32>>= Vec::new();
         for x in 0..size{
@@ -28,7 +47,7 @@ impl Stamp{
             let fx = x as f32;
             for y in 0..size {
                 let fy = y as f32;
-                v[x][y] = Vector2::new( fx - (fsize/2.0)+ 0.5 ,fy - (fsize/2.0)+ 0.5).scale(1.0/( (fsize/2.0)*2.0f32.sqrt())  ).dot(&vector);
+                v[x][y] = Vec2::new( fx - (fsize/2.0)+ 0.5 ,fy - (fsize/2.0)+ 0.5).scale(1.0/( (fsize/2.0)*2.0f32.sqrt())  ).dot(&vector);
             }
         }
 
@@ -42,10 +61,10 @@ fn smoothstep(x: f32) -> f32{
     ((8.0 * x -3.0).tanh()+1.0) /2.0
 }
 
-fn gen_stamps(accuracy: u32,size: usize) -> Vec<Stamp>{
+fn gen_stamps(accuracy: usize,size: usize) -> Vec<Stamp>{
     let step : f32 = 2.0*PI / accuracy as f32;
     (0..accuracy).into_par_iter().map(|i| {
-        Stamp::new(&Vector2::new((i as f32*step).cos(), (i as f32*step).sin()), size)
+        Stamp::new(&Vec2::new((i as f32*step).cos(), (i as f32*step).sin()), size)
     }).collect()
 }
 /// Seed - the seed to use for the random number generator.
@@ -70,7 +89,7 @@ fn gen_stamps(accuracy: u32,size: usize) -> Vec<Stamp>{
 /// as N approaches infinity we will approach the original implementation of perlin noise, but I wager accuracy of 8 or 16 should be enough to make a nice looking perlin-ish noise.
 /// We will create N stamps with each stamp having a precalculated vector pointing in a direction (2 * PI/N) * i , meaning each vector will be exactly 2 * PI/N away from eachother.
 /// Also another note, we do not use the original smoothstep function, i replaced it with a sigmoid tanh(x) as the big benefit of it is that it doesn't require clamping, as the codomain of tanh() is (-1;1)
-pub fn gen_noise(seed: &str,accuracy: u32, stamp_size: usize, world_size: usize, lower_range: f32, upper_range: f32) -> Vec<Vec<bool>>{
+pub fn gen_noise(seed: &str,accuracy: usize, stamp_size: usize, world_size: usize, lower_range: f32, upper_range: f32) -> Vec<Vec<bool>>{
     let real_stamp_size = stamp_size * 2;
     let mut rng : Pcg32 = Seeder::from(seed).make_rng();
     let stamps = gen_stamps(accuracy, real_stamp_size);
